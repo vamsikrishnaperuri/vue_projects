@@ -4,6 +4,9 @@
 
 <script setup>
 import {computed} from 'vue';
+import {useAppColors} from '~/composables/useProperties';
+
+const appColor = useAppColors();
 
 const props = defineProps({
     modelValue: {

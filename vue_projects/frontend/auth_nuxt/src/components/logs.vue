@@ -2,7 +2,7 @@
 .q-pa-md.flex.flex-center.full-width
   q-card.q-pa-lg.rounded-borders.shadow-2(style="max-width: 1000px; width: 100%")
     q-card-section
-      .text-h4.q-mb-md User Logs
+      .text-h4.q-mb-md(:style="{color: appColor.secondary, fontWeight:'bold'}") User Logs
       .text-subtitle1.text-grey-6.q-mb-lg All user activity logs.
 
       q-input(
@@ -40,7 +40,7 @@
         binary-state-sort
         :pagination="{ sortBy: vm.sortBy, descending: vm.sortOrder === 'desc' }"
         @request="onRequest"
-        style="max-height: 500px;"
+        style="max-height: 300px;"
       )
         template(v-slot:body="props")
           q-tr(:props="props")
@@ -57,33 +57,36 @@
             q-spinner(color="primary")
 </template>
 
-
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
 import LogsViewModel from '~/viewmodels/LogsViewModel'
+import { useAppColors,useAppLanguage } from'~/composables/useProperties'
 
+const appColor = useAppColors()
 const vm = reactive(new LogsViewModel())
 
 const columns = [
   { name: 'id', label: 'ID', field: 'id', sortable: true },
   { name: 'action', label: 'Action', field: 'action', sortable: true },
-  { name: 'logged_at', label: 'Timestamp', field: 'logged_at', sortable: true,
-    format: val => new Date(val).toLocaleString() },
+  {
+    name: 'logged_at',
+    label: 'Timestamp',
+    field: 'logged_at',
+    sortable: true,
+    format: val => new Date(val).toLocaleString()
+  },
   { name: 'user_name', label: 'User Name', field: 'user_name' },
   { name: 'user_email', label: 'User Email', field: 'user_email' }
 ]
-
 
 function onSearch () {
   vm.setFilters({ search: vm.searchLocal })
 }
 
-
 function onRequest (props) {
   const { sortBy, descending } = props.pagination
   vm.setSort(sortBy, descending ? 'desc' : 'asc')
 }
-
 
 async function loadMore (index, done) {
   await vm.fetch({ page: vm.page + 1 })

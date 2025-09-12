@@ -1,60 +1,110 @@
 <template lang="pug">
-  q-page.flex.flex-center
-    q-img.fit.absolute(src="bg.jpg")
+  q-layout(view="lHh Lpr lff" :style="{ background: appColor.background, minHeight: '100vh' }")
     appNotify(ref="notify")
 
-    div.flex.flex-center
-      q-card.q-pa-md.q-mr-md(style="width: 250px; border: 1px solid #ccc;  border-radius: 20px;")
-        div.flex.flex-center
-          q-avatar(size="100px" class="q-mb-md" color="primary" text-color="white" icon="person")
-          q-separator(spaced)
-          q-btn(flat icon="edit" label="Edit Profile" color="primary" class="q-mb-sm full-width" @click="openEditDialog")
-          q-btn(flat icon="delete" label="Delete Account" color="negative" class="q-mb-sm full-width" @click="askconfirm")
-          q-btn(flat icon="logout" label="Logout" color="amber" class="full-width" @click="handleLogout")
-          q-btn(flat label="Logs" color="amber" to="/logs")
+    // Top Navigation Bar
+    q-header(elevated :style="{background: appColor.cardbg}")
+      q-toolbar
+        q-toolbar-title.text-center(:style="{color:appColor.primary}") {{ t('profile') }}
+        q-btn(round dense icon="brightness_6" color="primary" @click="theme.toggleTheme")
 
-      q-card.flex.row.q-pa-md(style="width: 600px; border-radius: 20px; background:white")
-        q-card-section.col.q-ml-md
-          h4.text-primary.text-center(style="font-weight: bold;") My Profile
+    // Left Sidebar
+    q-drawer(show-if-above bordered :style="{ background: appColor.cardbg, borderRight: '1px solid', borderColor: appColor.cardboarder }")
+      div.q-pa-md.column
+        div.flex.flex-center.column
+          q-avatar(size="100px" icon="person" :style="{ background: appColor.primary, color: appColor.background }")
+          div.text-h6.q-mt-sm(:style="{ color: appColor.text }") {{ t('account')}}
 
-          div.row.q-mt-md(style="display: flex; justify-content: space-between;")
-            div.col-6.q-pa-md(style="border: 2px solid black; border-radius:10px; width:250px")
-              b Name: 
-              | {{ user.name }}
-            div.col-6.q-pa-md(style="border: 2px solid black; border-radius:10px; width:250px")
-              b Last Name: 
-              | {{ user.lastname }}
+        q-list.q-mt-xl
+          q-item(clickable v-ripple @click="openEditDialog")
+            q-item-section(avatar)
+              q-icon(name="edit" :color="appColor.primary")
+            q-item-section
+              q-item-label(:style="{ color: appColor.text }") {{ t('editprofile')}}
 
-          div.row.q-mt-sm(style="display: flex; justify-content: space-between;")
-            div.col-6.q-pa-md(style="border: 2px solid black; border-radius:10px; width:250px")
-              b Email: 
-              | {{ user.email }}
-            div.col-6.q-pa-md(style="border: 2px solid black; border-radius:10px; width:250px")
-              b Phone: 
-              | {{ user.phone }}
+          q-separator(spaced inset :color="appColor.text")
 
-          div.row.q-mt-sm
-            div.col-12.q-pa-md(style="border: 2px solid black; border-radius:10px; width:250px")
-              b Gender: 
-              | {{ user.gender }}
+          q-item(clickable v-ripple @click="askconfirm")
+            q-item-section(avatar)
+              q-icon(name="delete" color="negative")
+            q-item-section
+              q-item-label(:style="{ color: appColor.text }") {{ t('deleteaccount')}}
 
+          q-separator(spaced inset :color="appColor.cardboarder")
+
+          q-item(clickable v-ripple @click="handleLogout")
+            q-item-section(avatar)
+              q-icon(name="logout" color="amber")
+            q-item-section
+              q-item-label(:style="{ color: appColor.text }") {{ t('logout')}}
+
+          q-separator(spaced inset :color="appColor.cardboarder")
+
+          //- q-item(clickable v-ripple @click="")
+          //-   q-item-section(avatar)
+          //-     q-icon(name="logout" color="amber")
+          //-   q-item-section
+          //-     q-item-label(:style="{ color: appColor.text }") {{ t('language')}}
+          //-   q-separator(spaced inset :color="appColor.cardboarder")
+
+          div.q-pa-md(style="boarder: 2px solid #ccc")
+            q-select(
+              v-model="languageStore.current"
+              :options="[ { label: 'English', value: 'en' },{ label: 'हिन्दी', value: 'hi' },{ label: 'తెలుగు', value: 'te' }]"
+              option-value="value"
+              option-label="label"
+              emit-value
+              map-options
+              label="Language"
+              @update:model-value="languageStore.setLanguage"
+              :style="{color:appColor.secondary}"
+            )
+
+
+
+
+    // Main Profile Content - Centered
+    q-page-container
+      q-page.flex.flex-center
+        q-card(elevated :style="{width: '100%', maxWidth: '1200px', borderRadius: '20px', border: '2px solid', background: appColor.cardbg, borderColor: appColor.cardboarder}")
+          q-card-section
+            div.row.q-col-gutter-md.flex.flex-center
+              // Left-aligned Profile Data (First column)
+              div.col-12.col-md-3.flex.flex-center
+                div.q-pa-md.q-mb-md(:style="{width:'250px',border: '2px solid', borderRadius:'10px', color:appColor.text, borderColor: appColor.cardboarder}")
+                  b {{ t('name')}}: 
+                  span(:style="{color: appColor.secondary, fontWeight:'bold'}") {{ user.name }}
+                div.q-pa-md.q-mb-md(:style="{width:'250px',border: '2px solid', borderRadius:'10px', color:appColor.text, borderColor: appColor.cardboarder}")
+                  b {{ t('lastname')}}: 
+                  span(:style="{color: appColor.secondary, fontWeight:'bold'}") {{ user.lastname }}
+                div.q-pa-md.q-mb-md(:style="{width:'250px',border: '2px solid', borderRadius:'10px', color:appColor.text, borderColor: appColor.cardboarder}")
+                  b(:style="{color:appColor.text}") {{ t('email')}}: 
+                  span(:style="{color: appColor.secondary, fontWeight:'bold'}") {{ user.email }}
+                div.q-pa-md.q-mb-md(:style="{width:'250px',border: '2px solid', borderRadius:'10px', color:appColor.text, borderColor: appColor.cardboarder}")
+                  b {{ t('phone')}}: 
+                  span(:style="{color: appColor.secondary, fontWeight:'bold'}") {{ user.phone }}
+                div.q-pa-md.q-mb-md(:style="{width:'250px',border: '2px solid', borderRadius:'10px', color:appColor.text, borderColor: appColor.cardboarder}")
+                  b {{ t('gender')}}: 
+                  span(:style="{color: appColor.secondary, fontWeight:'bold'}") {{ user.gender }}
+              // Placeholder for Log Data Table (Second column)
+              div.col-12.col-md-9
+                div.q-pa-sm(:style="{height: '100%', border: '2px solid', borderRadius:'10px', color:appColor.text, borderColor: appColor.cardboarder}")
+                  Logs
 
     Dialog(v-model="showDialog" message="Are you sure you want to delete your account?" @confirm="handleDelete" @cancel="")
 
     q-dialog(v-model="showEdit")
-      q-card.q-pb-sm(style="min-width: 450px; border-radius: 16px;")
+      q-card.q-pb-sm(:style="{minWidth: '450px', borderRadius: '16px', background:appColor.cardbg, borderColor: appColor.cardboarder}")
         q-img(src="/banner.png" alt="Profile Picture" style="height: 150px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;")
           div(class="absolute-full flex flex-center bg-opacity-30 text-white text-h6")
             | Edit Profile
-
-        //- q-separator(inset class="q-mt-sm q-mb-md")
 
         q-card-section
           InputField(v-model="formData.editName" label="First Name" type="text")
           InputField(v-model="formData.editLastName" label="Last Name" type="text")
           InputField(v-model="formData.editEmail" label="Email" type="email")
           InputField(v-model="formData.editphoneNumber" label="Phone Number" type="number")
-          p.q-pl-md Gender
+          p.q-pl-md(:style="{color:appColor.text}") Gender
             q-option-group(
               v-model="formData.editgender"
               type="radio"
@@ -75,6 +125,23 @@ import appNotify from '~/components/appNotify.vue'
 import ProfileViewModel from '~/viewmodels/ProfileViewModel'
 import InputField from '~/components/InputField.vue'
 import Dialog from '~/components/Dialog.vue'
+import { useAppColors,useAppLanguage } from'~/composables/useProperties'
+import { useThemeStore } from '~/stores/theme'
+import Logs from '~/components/logs.vue'
+import { useLanguageStore  } from '~/stores/language'
+import { watch } from 'vue'
+
+const appColor = useAppColors()
+const theme = useThemeStore()
+const { t } = useAppLanguage()
+const languageStore = useLanguageStore()
+
+watch(
+  () => languageStore.current,
+  (newVal, oldVal) => {
+    console.log(`[Watcher] Language changed: ${oldVal} → ${newVal}`)
+  }
+)
 
 const user = ref({ id: '', name: '', email: '', phone: '', lastname: '', gender: ''})
 const notify = ref(null)
